@@ -103,10 +103,10 @@ The `BearerAuthenticationHandler` requires a Bearer token as value.
             // Do something and return a ResponseData object
         }
 ```
-As this is not the best way to do authentication, you can also create your own AuthenticationHandler. To do this, you need to create a new class that implements the `AuthenticationHandler` interface.
+As this is not the best way to do authentication, you can also create your own AuthenticationHandler. To do this, you need to create a new class that extends the `AuthenticationHandler` class.
 
 ```java
-        public class MyAuthenticationHandler implements AuthenticationHandler {
+        public class MyAuthenticationHandler extends AuthenticationHandler {
     
             public MyAuthenticationHandler() {
                 super("Bearer"); // This is the type of the authentication header. You can allow multiple types ("Bearer", "Basic") but your handler should be able to handle all of them.

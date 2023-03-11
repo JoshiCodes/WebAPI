@@ -77,7 +77,10 @@ You can specify multiple methods by using `@HttpMethods({METHOD TYPES HERE})`.
 <br><br>
 
 ## Parameters
-At the moment, there is no way to get parameters from the request. This will be added in the future.
+At the moment you can only read parameters from the request URI (GET).
+To get a Parameter from the request URI, use `RequestData#getParameter(String name)`. You can also provide a fallback value, which is used in case the parameter is not present in the request URI.
+
+You cannot read parameters from the request body yet. This will be added in a future update.
 
 <br><br>
 

@@ -1,5 +1,4 @@
 # WebAPI
-### created by [JoshiCodes](https://github.com/JoshiCodes)
 
 ![Github Release](https://img.shields.io/github/v/release/JoshiCodes/WebAPI?include_prereleases)
 
@@ -15,7 +14,7 @@ You can also download the newest version from the [releases](https://github.com/
 <dependency>
     <groupId>de.joshicodes</groupId>
     <artifactId>webapi</artifactId>
-    <version>1.0-alpha.2</version>
+    <version>1.0-alpha.3</version>
 </dependency>
 ```
 
@@ -62,6 +61,7 @@ You can create a new ResponseData object using the `ResponseData.Builder` class.
 ```
 You can also use `ResponseData#from(int code, String body)` to create a new Builder object.
 
+<br><br>
 
 ## Methods
 You can specify the method that a route should be available on using the `@HttpMethod` annotation.
@@ -74,8 +74,12 @@ You can specify the method that a route should be available on using the `@HttpM
 ```
 You can specify multiple methods by using `@HttpMethods({METHOD TYPES HERE})`.
 
+<br><br>
+
 ## Parameters
 At the moment, there is no way to get parameters from the request. This will be added in the future.
+
+<br><br>
 
 ## Authentication
 You can add authentication to your routes using the `@Authentication` annotation.

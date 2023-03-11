@@ -1,18 +1,21 @@
 # WebAPI
 ### created by [JoshiCodes](https://github.com/JoshiCodes)
 
+![Github Release](https://img.shields.io/github/v/release/JoshiCodes/WebAPI?include_prereleases)
+
 A simple-to-use and small web api for your projects.
 _Mainly used for my own projects._
 
 ## Installation
 
 You can install the WebAPI using maven.
+You can also download the newest version from the [releases](https://github.com/JoshiCodes/WebAPI/releases).
 
 ```xml
 <dependency>
     <groupId>de.joshicodes</groupId>
     <artifactId>webapi</artifactId>
-    <version>1.0</version>
+    <version>1.0-alpha.2</version>
 </dependency>
 ```
 

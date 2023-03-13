@@ -24,8 +24,7 @@ public class Webserver {
 
     private HttpServer server;
 
-    private final List<Router> routers;
-    private final List<Route> routes;
+    private final HashMap<String, Router> routers;
     private final HashMap<Integer, ErrorRoute> errorHandlers;
 
     private final String path;
@@ -34,7 +33,6 @@ public class Webserver {
         this.host = builder.getHost();
         this.port = builder.getPort();
         this.routers = builder.getRouters();
-        this.routes = builder.getRoutes();
         this.errorHandlers = builder.getErrorHandlers();
         this.path = builder.getPath();
         create();
@@ -64,12 +62,14 @@ public class Webserver {
 
     private void handle(URI uri, HttpExchange exchange) throws IOException {
         // Check if there is a router for the path
-        for (Router router : routers) {
-            System.out.println(uri.getPath() + " " + router.getPath());
-            if(uri.getPath().startsWith(router.getPath())) {
-                String path = uri.getPath().replace(router.getPath(), "");
-                if(!path.endsWith("/"))
-                    path = path.concat("/");
+        for (String routePath : routers.keySet()) {
+            Router router = routers.get(routePath);
+            if(uri.getPath().startsWith(routePath)) {
+                String path = uri.getPath().replace(routePath, "");
+                if(!path.startsWith("/"))
+                    path = "/" + path;  // Add slash if not present
+                if(path.endsWith("/") && !path.equals("/"))
+                    path = path.substring(0, path.length() - 1);  // Remove last slash
                 Route request = router.getRoute(path);
                 if(request == null) {
                     continue;
@@ -81,13 +81,17 @@ public class Webserver {
             }
         }
         // Check if there is a route for the path
-        for (Route request : routes) {
-            if (request.getPath().equals(uri.getPath())) {
+        Router defaultRouter = routers.get("/");
+        if(defaultRouter != null) {
+            String path = uri.getPath();
+            if(!path.startsWith("/"))
+                path = "/" + path;
+            if(defaultRouter.hasRoute(path)) {
+                Route request = defaultRouter.getRoute(path);
                 if(handleRoute(request, exchange)) {
                     return;
                 }
             }
-            continue;
         }
         if(errorHandlers.containsKey(HttpErrorCode.NOT_FOUND)) {
             ResponseData response = errorHandlers.get(HttpErrorCode.NOT_FOUND).handle(new RequestData(exchange));

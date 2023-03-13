@@ -4,37 +4,32 @@ import de.joshicodes.webapi.router.route.Route;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 public class Router {
 
-    private final String path;
-    private final List<Route> routes;
+    private final HashMap<String, Route> routes;
 
-    public Router(String path) {
-        this.path = path;
-        this.routes = new ArrayList<>();
+    public Router() {
+        this.routes = new HashMap<>();
     }
 
-    public void addRoute(Route route) {
-        this.routes.add(route);
+    public void addRoute(String path, Route route) {
+        this.routes.put(path, route);
     }
 
-    public void addRoutes(Route... routes) {
-        this.routes.addAll(Arrays.asList(routes));
+    public void addRoutes(HashMap<String, Route> routes) {
+        this.routes.putAll(routes);
     }
 
-    public String getPath() {
-        return path;
-    }
-
-    public List<Route> getRoutes() {
+    public HashMap<String, Route> getRoutes() {
         return routes;
     }
 
-    public boolean hasRoute(String path) {
-        for (Route route : routes) {
-            if (route.getPath().equals(path)) {
+    public boolean hasRoute(String requestPath) {
+        for (String path : routes.keySet()) {
+            if (path.equalsIgnoreCase(requestPath)) {
                 return true;
             }
         }
@@ -42,12 +37,7 @@ public class Router {
     }
 
     public Route getRoute(String path) {
-        for (Route route : routes) {
-            if (route.getPath().equals(path)) {
-                return route;
-            }
-        }
-        return null;
+        return routes.get(path);
     }
 
 }

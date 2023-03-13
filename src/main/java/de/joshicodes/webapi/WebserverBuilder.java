@@ -11,34 +11,36 @@ import java.util.List;
 
 public class WebserverBuilder {
 
-    private final List<Router> routers;
-    private final List<Route> routes;
+    private final HashMap<String, Router> routers;
     private final HashMap<Integer, ErrorRoute> errorHandlers;
     private String host;
     private int port = -1;
 
     private String path;
 
+    private Router defaultRouter;
+
     public WebserverBuilder() {
-        this.routers = new ArrayList<>();
-        this.routes = new ArrayList<>();
+        this.routers = new HashMap<>();
         this.errorHandlers = new HashMap<>();
         this.host = "0.0.0.0";
-        path = null;
+        path = "/";
     }
 
-    public WebserverBuilder addRouter(Router router) {
-        this.routers.add(router);
+    public WebserverBuilder addRouter(String path, Router router) {
+        if(!path.startsWith("/"))
+            path = "/" + path;
+        this.routers.put(path, router);
         return this;
     }
 
-    public WebserverBuilder addRoute(Route route) {
-        this.routes.add(route);
-        return this;
-    }
-
-    public WebserverBuilder addRoutes(Route... routes) {
-        this.routes.addAll(Arrays.asList(routes));
+    public WebserverBuilder addRoute(String path, Route route) {
+        if(!path.startsWith("/"))
+            path = "/" + path;
+        if(defaultRouter == null)
+            defaultRouter = new Router();
+        defaultRouter.addRoute(path, route);
+        routers.put(this.path, defaultRouter);
         return this;
     }
 
@@ -76,12 +78,8 @@ public class WebserverBuilder {
         return port;
     }
 
-    public List<Router> getRouters() {
+    public HashMap<String, Router> getRouters() {
         return routers;
-    }
-
-    public List<Route> getRoutes() {
-        return routes;
     }
 
     public HashMap<Integer, ErrorRoute> getErrorHandlers() {

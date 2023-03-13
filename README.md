@@ -14,7 +14,7 @@ You can also download the newest version from the [releases](https://github.com/
 <dependency>
     <groupId>de.joshicodes</groupId>
     <artifactId>webapi</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
 </dependency>
 ```
 

@@ -68,6 +68,8 @@ public class Webserver {
             System.out.println(uri.getPath() + " " + router.getPath());
             if(uri.getPath().startsWith(router.getPath())) {
                 String path = uri.getPath().replace(router.getPath(), "");
+                if(!path.endsWith("/"))
+                    path = path.concat("/");
                 Route request = router.getRoute(path);
                 if(request == null) {
                     continue;

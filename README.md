@@ -108,7 +108,10 @@ You can specify multiple methods by using `@HttpMethods({METHOD TYPES HERE})`.
 At the moment you can only read parameters from the request URI (GET).
 To get a Parameter from the request URI, use `RequestData#getParameter(String name)`. You can also provide a fallback value, which is used in case the parameter is not present in the request URI.
 
-You cannot read parameters from the request body yet. This will be added in a future update.
+To read parameters from a POST request, you can use `RequestData#getPostParameters()`. This will return a `HashMap<String, String>` containing the data of the request.
+If this method throws an `UnknownContentTypeException`, your Content-Type header is not supported.
+For now, only `application/x-www-form-urlencoded` and `application/json` are supported.
+You can also read the pure body of the request using `RequestData#getBody()`. This will return a `String` containing the body of the request which you can then parse.
 
 <br><br>
 

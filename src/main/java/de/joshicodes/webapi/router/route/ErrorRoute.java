@@ -1,4 +1,4 @@
-package de.joshicodes.webapi.request;
+package de.joshicodes.webapi.router.route;
 
 public abstract class ErrorRoute extends Route {
 

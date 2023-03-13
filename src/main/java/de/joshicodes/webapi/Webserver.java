@@ -5,6 +5,9 @@ import com.sun.net.httpserver.HttpServer;
 import de.joshicodes.webapi.auth.Authentication;
 import de.joshicodes.webapi.auth.handler.AuthenticationHandler;
 import de.joshicodes.webapi.request.*;
+import de.joshicodes.webapi.router.Router;
+import de.joshicodes.webapi.router.route.ErrorRoute;
+import de.joshicodes.webapi.router.route.Route;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -21,14 +24,19 @@ public class Webserver {
 
     private HttpServer server;
 
+    private final List<Router> routers;
     private final List<Route> routes;
     private final HashMap<Integer, ErrorRoute> errorHandlers;
 
-    Webserver(Builder builder) {
-        this.host = builder.host;
-        this.port = builder.port;
-        this.routes = builder.routes;
-        this.errorHandlers = builder.errorHandlers;
+    private final String path;
+
+    Webserver(WebserverBuilder builder) {
+        this.host = builder.getHost();
+        this.port = builder.getPort();
+        this.routers = builder.getRouters();
+        this.routes = builder.getRoutes();
+        this.errorHandlers = builder.getErrorHandlers();
+        this.path = builder.getPath();
         create();
     }
 
@@ -40,7 +48,7 @@ public class Webserver {
             e.printStackTrace();
         }
 
-        server.createContext("/", exchange -> handle(exchange.getRequestURI(), exchange));
+        server.createContext((path != null && !path.replaceAll(" ", "").equals("") ? path : "/"), exchange -> handle(exchange.getRequestURI(), exchange));
 
     }
 
@@ -55,96 +63,121 @@ public class Webserver {
     }
 
     private void handle(URI uri, HttpExchange exchange) throws IOException {
-        for (Route request : routes) {
-            if (request.getPath().equals(uri.getPath())) {
-                Method m = null;
-                try {
-                    m = request.getClass().getMethod("handle", RequestData.class);
-                } catch (NoSuchMethodException ignore) {  }
-                if(m == null) {
+        // Check if there is a router for the path
+        for (Router router : routers) {
+            System.out.println(uri.getPath() + " " + router.getPath());
+            if(uri.getPath().startsWith(router.getPath())) {
+                String path = uri.getPath().replace(router.getPath(), "");
+                Route request = router.getRoute(path);
+                if(request == null) {
                     continue;
                 }
-                List<String> methods = List.of("GET");
-                if(m.isAnnotationPresent(HttpMethod.class)) {
-                    de.joshicodes.webapi.request.HttpMethod annotation = m.getAnnotation(HttpMethod.class);
-                    methods = Arrays.stream(annotation.value()).map(HttpMethodType::name).toList();
+                if(handleRoute(request, exchange)) {
+                    return;
                 }
-                if(methods.contains(exchange.getRequestMethod())) {
-                    if(m.isAnnotationPresent(Authentication.class)) {
-                        boolean auth = false;
-                        Authentication annotation = m.getAnnotation(Authentication.class);
-                        String value = annotation.value();
-
-                        List<String> headers = exchange.getRequestHeaders().get("Authorization");
-                        if(headers != null && !headers.isEmpty()) {
-                            for(String header : headers) {
-                                if(header == null) continue;
-                                if(!header.contains(" ")) break;
-                                String[] split = header.split(" ");
-                                if(split.length != 2) break; // Invalid header, skip (should be "<type> <value>")
-                                String type = split[0];
-                                header = split[1];
-                                Class<? extends AuthenticationHandler> clazz = annotation.handler();
-                                AuthenticationHandler handler = null;
-                                for(Constructor<?> constructor : clazz.getConstructors()) {
-                                    try {
-                                        if(constructor.getParameterCount() == 0) {
-                                            handler = ((AuthenticationHandler)constructor.newInstance());
-                                            break;
-                                        } else if(constructor.getParameterCount() == 1 && constructor.getParameterTypes()[0].equals(String.class)) {
-                                            handler = ((AuthenticationHandler)constructor.newInstance(value));
-                                            break;
-                                        }
-                                    } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                                if(handler != null) {
-                                    if(Arrays.asList(handler.getAllowedTypes()).contains(type))
-                                        auth = handler.handle(type, header);
-                                }
-                            }
-                        }
-
-                        if(!auth) {
-                            if(errorHandlers.containsKey(HttpErrorCode.UNAUTHORIZED)) {
-                                ResponseData response = errorHandlers.get(HttpErrorCode.UNAUTHORIZED).handle(new RequestData(exchange));
-                                write(response, exchange);
-                            } else {
-                                String response = "{\"error\": \"401 Unauthorized\"}";
-                                exchange.sendResponseHeaders(HttpErrorCode.UNAUTHORIZED, response.length());
-                                exchange.getResponseBody().write(response.getBytes());
-                                exchange.getResponseBody().close();
-                            }
-                            return;
-                        }
-
-                    }
-                    ResponseData response = request.handle(new RequestData(exchange));
-                    write(response, exchange);
-                } else {
-                    if(errorHandlers.containsKey(HttpErrorCode.METHOD_NOT_ALLOWED)) {
-                        ResponseData response = errorHandlers.get(HttpErrorCode.METHOD_NOT_ALLOWED).handle(new RequestData(exchange));
-                        write(response, exchange);
-                    } else {
-                        String response = "{\"error\": \"Method not allowed\"}";
-                        exchange.sendResponseHeaders(HttpErrorCode.METHOD_NOT_ALLOWED, response.length());
-                        exchange.getResponseBody().write(response.getBytes());
-                        exchange.getResponseBody().close();
-                    }
-                }
-                return;
+                continue;
             }
+        }
+        // Check if there is a route for the path
+        for (Route request : routes) {
+            if (request.getPath().equals(uri.getPath())) {
+                if(handleRoute(request, exchange)) {
+                    return;
+                }
+            }
+            continue;
         }
         if(errorHandlers.containsKey(HttpErrorCode.NOT_FOUND)) {
             ResponseData response = errorHandlers.get(HttpErrorCode.NOT_FOUND).handle(new RequestData(exchange));
             write(response, exchange);
         } else {
-            String response = "{\"error\": \"Not found\"}";
+            String response = "{\"error\": \"404 Not found\"}";  // default 404 response
             exchange.sendResponseHeaders(HttpErrorCode.NOT_FOUND, response.length());
             exchange.getResponseBody().write(response.getBytes());
             exchange.getResponseBody().close();
         }
+    }
+
+    private boolean handleRoute(Route request, HttpExchange exchange) throws IOException {
+        Method m = null;
+        try {
+            m = request.getClass().getMethod("handle", RequestData.class);
+        } catch (NoSuchMethodException ignore) {
+        }
+        if (m == null) {
+            return false;
+        }
+        List<String> methods = List.of("GET");
+        if (m.isAnnotationPresent(HttpMethod.class)) {
+            de.joshicodes.webapi.request.HttpMethod annotation = m.getAnnotation(HttpMethod.class);
+            methods = Arrays.stream(annotation.value()).map(HttpMethodType::name).toList();
+        }
+        if (methods.contains(exchange.getRequestMethod())) {
+            if (m.isAnnotationPresent(Authentication.class)) {
+                boolean auth = false;
+                Authentication annotation = m.getAnnotation(Authentication.class);
+                String value = annotation.value();
+
+                List<String> headers = exchange.getRequestHeaders().get("Authorization");
+                if (headers != null && !headers.isEmpty()) {
+                    for (String header : headers) {
+                        if (header == null) continue;
+                        if (!header.contains(" ")) break;
+                        String[] split = header.split(" ");
+                        if (split.length != 2) break; // Invalid header, skip (should be "<type> <value>")
+                        String type = split[0];
+                        header = split[1];
+                        Class<? extends AuthenticationHandler> clazz = annotation.handler();
+                        AuthenticationHandler handler = null;
+                        for (Constructor<?> constructor : clazz.getConstructors()) {
+                            try {
+                                if (constructor.getParameterCount() == 0) {
+                                    handler = ((AuthenticationHandler) constructor.newInstance());
+                                    break;
+                                } else if (constructor.getParameterCount() == 1 && constructor.getParameterTypes()[0].equals(String.class)) {
+                                    handler = ((AuthenticationHandler) constructor.newInstance(value));
+                                    break;
+                                }
+                            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        if (handler != null) {
+                            if (Arrays.asList(handler.getAllowedTypes()).contains(type))
+                                auth = handler.handle(type, header);
+                        }
+                    }
+                }
+
+                if (!auth) {
+                    if (errorHandlers.containsKey(HttpErrorCode.UNAUTHORIZED)) {
+                        ResponseData response = errorHandlers.get(HttpErrorCode.UNAUTHORIZED).handle(new RequestData(exchange));
+                        write(response, exchange);
+                    } else {
+                        String response = "{\"error\": \"401 Unauthorized\"}";  // default 401 response
+                        exchange.sendResponseHeaders(HttpErrorCode.UNAUTHORIZED, response.length());
+                        exchange.getResponseBody().write(response.getBytes());
+                        exchange.getResponseBody().close();
+                    }
+                    return false;
+                }
+
+            }
+            ResponseData response = request.handle(new RequestData(exchange));
+            write(response, exchange);
+            return true;
+        } else {
+            if(errorHandlers.containsKey(HttpErrorCode.METHOD_NOT_ALLOWED)) {
+                ResponseData response = errorHandlers.get(HttpErrorCode.METHOD_NOT_ALLOWED).handle(new RequestData(exchange));
+                write(response, exchange);
+            } else {
+                String response = "{\"error\": \"405 Method not allowed\"}"; // default 405 response
+                exchange.sendResponseHeaders(HttpErrorCode.METHOD_NOT_ALLOWED, response.length());
+                exchange.getResponseBody().write(response.getBytes());
+                exchange.getResponseBody().close();
+            }
+        }
+        return false;
     }
 
     private void write(ResponseData response, HttpExchange exchange) throws IOException {
@@ -165,54 +198,6 @@ public class Webserver {
 
     public int getPort() {
         return port;
-    }
-
-    public static class Builder {
-
-        private final List<Route> routes;
-        private final HashMap<Integer, ErrorRoute> errorHandlers;
-        private String host;
-        private int port = -1;
-
-        public Builder() {
-            this.routes = new ArrayList<>();
-            this.errorHandlers = new HashMap<>();
-            this.host = "0.0.0.0";
-        }
-
-        public Builder addRoute(Route route) {
-            this.routes.add(route);
-            return this;
-        }
-
-        public Builder addRoutes(Route... routes) {
-            this.routes.addAll(Arrays.asList(routes));
-            return this;
-        }
-
-        public Builder addErrorHandler(int code, ErrorRoute request) {
-            this.errorHandlers.put(code, request);
-            return this;
-        }
-
-        public Builder setHost(String host) {
-            this.host = host;
-            return this;
-        }
-
-        public Builder setPort(int port) {
-            this.port = port;
-            return this;
-        }
-
-        public Webserver build() {
-            if (port == -1) {
-                throw new IllegalArgumentException("You have to provide a port for the webserver");
-            }
-            return new Webserver(this);
-        }
-
-
     }
 
 }

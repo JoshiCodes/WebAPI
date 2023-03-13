@@ -22,15 +22,15 @@ You can also download the newest version from the [releases](https://github.com/
 To create a new WebAPI instance, you can use the following code:
 
 ```java
-        Webserver.Builder builder = new Webserver.Builder();
+        WebserverBuilder builder = new WebserverBuilder();
         builder.setPort(8080);
         builder.build();
 ```
 You need to set a port for the webserver to run on. You can also set a custom path for the webserver to run on. The default path is `/`.
-To set a custom path, you can use `builder.setPath("/custom/path");`.
-You can also set a custom host for the webserver to run on. The default host is `0.0.0.0`. To set a custom host, you can use `builder.setHost(String)`
+To set a custom path, you can use `WebserverBuilder#setPath("/custom/path");`.
+You can also set a custom host for the webserver to run on. The default host is `0.0.0.0`. To set a custom host, you can use `WebserverBuilder#setHost(String)`
 
-To add a new route, create a new class that extends the `Route` class and add it to the builder using `builder.addRoute(Route)`.<br>
+To add a new route, create a new class that extends the `Route` class and add it to the builder using `WebserverBuilder#addRoute(Route)`.<br>
 The `Route` class has a constructor that takes a path as a parameter. The path is the path that the route will be available on.
 
 ```java
@@ -48,6 +48,34 @@ The `Route` class has a constructor that takes a path as a parameter. The path i
         );
 ```
 You can also add multiple routes at once using `builder.addRoutes(Route...)`.
+
+To handle multiple routes with the same base path, you can use a `Router`.
+To register a new Router, you can use `WebserverBuilder#addRouter(Router)`.
+The `Router` class has a constructor that takes a path as a parameter. The path is the base path that the router will be available on.
+
+```java
+        // This will create a new router that is available on /testRouter
+        Router router = new Router("/testRouter");
+
+        // This will create a new route that is available on /testRouter
+        // If there is no Route for "/" in the Router, "/testRouter" will return a 404 
+        router.addRoute(new Route("/") {
+            @Override
+            public ResponseData handle(RequestData request) {
+                // Do something and return a ResponseData object
+            }
+        });
+        
+        // This will create a new route that is available on /testRouter/testRoute
+        router.addRoute(new Route("/testRoute") {
+            @Override
+            public ResponseData handle(RequestData request) {
+                // Do something and return a ResponseData object
+            }
+        });
+        
+        builder.addRouter(router);
+```
 
 The `Route` class has a method called `handle(RequestData request)`. This method is called when a request is made to the route. The `RequestData` object contains information about the request. The `handle` Method should return a ResponseData object.
 You can create a new ResponseData object using the `ResponseData.Builder` class.

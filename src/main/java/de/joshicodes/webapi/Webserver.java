@@ -50,11 +50,17 @@ public class Webserver {
 
     }
 
+    /**
+     * Starts the server
+     */
     public void start() {
         System.out.println("Starting server on " + host + ":" + port);
         server.start();
     }
 
+    /**
+     * Stops the server
+     */
     public void stop() {
         System.out.println("Stopping server on " + host + ":" + port);
         server.stop(0);

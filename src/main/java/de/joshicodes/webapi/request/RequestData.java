@@ -13,18 +13,34 @@ import java.util.List;
 
 public record RequestData(HttpExchange exchange) {
 
+    /**
+     * Returns the request method provided by the exchange
+     * @return the request method as string (GET, POST, PUT, DELETE, ...)
+     */
     public String getMethod() {
         return exchange.getRequestMethod();
     }
 
+    /**
+     * Returns the protocol string from the request in the form protocol/majorVersion.minorVersion. For example, "HTTP/1.1".
+     * @return the protocol string
+     */
     public String getProtocol() {
         return exchange.getProtocol();
     }
 
+    /**
+     * Returns the provided Query String
+     * @return the query string
+     */
     public String getQuery() {
         return exchange.getRequestURI().getQuery();
     }
 
+    /**
+     * Returns the first value of the provided "Content-Type" header
+     * @return the content type
+     */
     public String getContentType() {
         return exchange.getRequestHeaders().getFirst("Content-Type");
     }
@@ -82,6 +98,11 @@ public record RequestData(HttpExchange exchange) {
         return parameters;
     }
 
+    /**
+     * Returns the GET parameters of the request query
+     * (e.g. ?param1=value1&param2=value2 -> param1=value1, param2=value2)
+     * @return the GET parameters
+     */
     public HashMap<String, String> getParameters() {
         HashMap<String, String> parameters = new HashMap<>();
         String query = getQuery();
@@ -103,14 +124,45 @@ public record RequestData(HttpExchange exchange) {
         return parameters;
     }
 
+    /**
+     * Checks if the request has a parameter with the provided key
+     * Works for both GET and POST requests
+     * @param key the key to check
+     * @return true if the request has a parameter with the provided key
+     */
     public boolean hasParameter(String key) {
-        return getParameters().containsKey(key);
+        if(getMethod().equals("POST")) {
+            try {
+                return getPostParameters().containsKey(key);
+            } catch (MissingPostDataException | UnknownContentTypeException e) {
+                throw new RuntimeException(e);
+            }
+        } else return getParameters().containsKey(key);
     }
 
+    /**
+     * Returns the value of the provided parameter key
+     * Works for both GET and POST requests
+     * @param key the key of the parameter
+     * @return the value of the parameter, always a string
+     */
     public String getParameter(String key) {
-        return getParameters().get(key);
+        if(getMethod().equals("POST")) {
+            try {
+                return getPostParameters().get(key);
+            } catch (MissingPostDataException | UnknownContentTypeException e) {
+                throw new RuntimeException(e);
+            }
+        } else return getParameters().get(key);
     }
 
+    /**
+     * Returns the value of the provided parameter key
+     * Works for both GET and POST requests
+     * @param key the key of the parameter
+     * @param def the default value if the parameter is not present
+     * @return the value of the parameter, always a string
+     */
     public String getParameter(String key, String def) {
         return getParameters().getOrDefault(key, def);
     }

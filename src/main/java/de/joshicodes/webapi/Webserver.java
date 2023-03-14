@@ -113,12 +113,12 @@ public class Webserver {
         if (m == null) {
             return false;
         }
-        List<String> methods = List.of("GET");
+        List<String> methods = null;
         if (m.isAnnotationPresent(HttpMethod.class)) {
             de.joshicodes.webapi.request.HttpMethod annotation = m.getAnnotation(HttpMethod.class);
             methods = Arrays.stream(annotation.value()).map(HttpMethodType::name).toList();
         }
-        if (methods.contains(exchange.getRequestMethod())) {
+        if (methods == null || methods.contains(exchange.getRequestMethod())) {
             if (m.isAnnotationPresent(Authentication.class)) {
                 boolean auth = false;
                 Authentication annotation = m.getAnnotation(Authentication.class);

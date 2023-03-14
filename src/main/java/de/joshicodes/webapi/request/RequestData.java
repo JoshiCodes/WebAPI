@@ -99,7 +99,7 @@ public record RequestData(HttpExchange exchange) {
     }
 
     /**
-     * Returns the GET parameters of the request query
+     * Returns the GET parameters of the request query<br>
      * (e.g. ?param1=value1&param2=value2 -> param1=value1, param2=value2)
      * @return the GET parameters
      */
@@ -125,7 +125,7 @@ public record RequestData(HttpExchange exchange) {
     }
 
     /**
-     * Checks if the request has a parameter with the provided key
+     * Checks if the request has a parameter with the provided key<br>
      * Works for both GET and POST requests
      * @param key the key to check
      * @return true if the request has a parameter with the provided key
@@ -141,7 +141,7 @@ public record RequestData(HttpExchange exchange) {
     }
 
     /**
-     * Returns the value of the provided parameter key
+     * Returns the value of the provided parameter key<br>
      * Works for both GET and POST requests
      * @param key the key of the parameter
      * @return the value of the parameter, always a string
@@ -157,7 +157,7 @@ public record RequestData(HttpExchange exchange) {
     }
 
     /**
-     * Returns the value of the provided parameter key
+     * Returns the value of the provided parameter key<br>
      * Works for both GET and POST requests
      * @param key the key of the parameter
      * @param def the default value if the parameter is not present

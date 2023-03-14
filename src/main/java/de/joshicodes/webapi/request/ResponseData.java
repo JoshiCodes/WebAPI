@@ -14,7 +14,7 @@ public abstract class ResponseData {
 
 
     /**
-     * Creates a new ResponseData object with the given body
+     * Creates a new ResponseData object with the given body<br>
      * If you want a built ResponseData object, use {@link #buildFrom(int, String)} instead
      * @param code The status code of the response
      * @param body The body of the response
@@ -25,7 +25,7 @@ public abstract class ResponseData {
     }
 
     /**
-     * Creates a new ResponseData object with the given body
+     * Creates a new ResponseData object with the given body<br>
      * If you want to alter the ResponseData object, use {@link #from(int, String)} instead
      * @param code The status code of the response
      * @param body The body of the response
@@ -36,7 +36,7 @@ public abstract class ResponseData {
     }
 
     /**
-     * Creates a new ResponseData object from a file
+     * Creates a new ResponseData object from a file<br>
      * This does not set the content type, you have to do that yourself using {@link Builder#setContentType(String)}
      * @param file The file to read the body from
      * @return The ResponseData object

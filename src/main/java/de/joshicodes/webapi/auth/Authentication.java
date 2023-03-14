@@ -10,9 +10,9 @@ import java.lang.annotation.RetentionPolicy;
 public @interface Authentication {
 
     /**
-     * The authentication handler to use for authentication
-     * Can be a custom handler or one of the default handlers
-     * To create a custom handler, implement the {@link AuthenticationHandler} class
+     * The authentication handler to use for authentication<br>
+     * Can be a custom handler or one of the default handlers<br>
+     * To create a custom handler, implement the {@link AuthenticationHandler} class<br>
      *
      * @see de.joshicodes.webapi.auth.handler.BearerAuthenticationHandler
      * @see de.joshicodes.webapi.auth.handler.BasicAuthenticationHandler
@@ -23,8 +23,8 @@ public @interface Authentication {
     Class<? extends AuthenticationHandler> handler();
 
     /**
-     * The value to use for authentication
-     * If the authentication handler does not require a value, this can be left empty or null
+     * The value to use for authentication<br>
+     * If the authentication handler does not require a value, this can be left empty or null<br>
      * 
      * @see de.joshicodes.webapi.auth.handler.AuthenticationHandler#handle(String, String)
      * 

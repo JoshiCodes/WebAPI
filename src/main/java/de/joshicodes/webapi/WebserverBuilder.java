@@ -21,7 +21,7 @@ public class WebserverBuilder {
     private Router defaultRouter;
 
     /**
-     * Creates a new WebserverBuilder
+     * Creates a new WebserverBuilder<br>
      * Use this to build a webserver
      *
      * @see WebserverBuilder#build()

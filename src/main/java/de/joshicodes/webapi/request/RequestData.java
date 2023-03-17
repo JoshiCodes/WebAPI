@@ -158,6 +158,7 @@ public record RequestData(HttpExchange exchange) {
 
     /**
      * Returns the uri parts of the request path<br>
+     * Returns <b>all</b> parts, even the one(s) for the route.<br>
      * @return the uri parts
      */
     public String[] getUriParts() {

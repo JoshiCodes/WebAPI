@@ -6,7 +6,6 @@ import de.joshicodes.webapi.auth.Authentication;
 import de.joshicodes.webapi.auth.handler.AuthenticationHandler;
 import de.joshicodes.webapi.request.*;
 import de.joshicodes.webapi.router.Router;
-import de.joshicodes.webapi.router.route.ErrorRoute;
 import de.joshicodes.webapi.router.route.Route;
 
 import java.io.IOException;
@@ -15,9 +14,14 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.net.URI;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.logging.*;
+import java.util.logging.Formatter;
 
 public class Webserver {
+
+    private final Logger logger;
 
     private final String host;
     private final int port;
@@ -25,11 +29,29 @@ public class Webserver {
     private HttpServer server;
 
     private final HashMap<String, Router> routers;
-    private final HashMap<Integer, ErrorRoute> errorHandlers;
+    private final HashMap<Integer, Route> errorHandlers;
 
     private final String path;
 
     Webserver(WebserverBuilder builder) {
+
+        this.logger = Logger.getLogger(Webserver.class.getSimpleName());
+        Handler handler = new ConsoleHandler();
+        handler.setFormatter(new Formatter() {
+            @Override
+            public String format(LogRecord record) {
+                SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
+                return String.format(
+                        "%s >> [%s] [%s] %s%n",
+                        record.getLoggerName(), format.format(new Date(record.getMillis())), record.getLevel(), record.getMessage()
+                );
+            }
+        });
+        this.logger.addHandler(handler);
+        this.logger.setUseParentHandlers(false);
+
+        this.logger.setLevel(builder.getLogLevel());
+
         this.host = builder.getHost();
         this.port = builder.getPort();
         this.routers = builder.getRouters();
@@ -54,15 +76,16 @@ public class Webserver {
      * Starts the server
      */
     public void start() {
-        System.out.println("Starting server on " + host + ":" + port);
+        logger.log(Level.INFO, "Starting server on " + host + ":" + port + "...");
         server.start();
+        logger.log(Level.INFO, "Server started.");
     }
 
     /**
      * Stops the server
      */
     public void stop() {
-        System.out.println("Stopping server on " + host + ":" + port);
+        logger.log(Level.INFO, "Stopping server on " + host + ":" + port);
         server.stop(0);
     }
 
@@ -99,10 +122,11 @@ public class Webserver {
             }
         }
 
+        Router router = routers.get("/");
         for (String prefix : routers.keySet()) {
             if(uri.getPath().startsWith(prefix + (prefix.endsWith("/") ? "" : "/"))) {
-                Router router = routers.get(prefix);
-                Route route = router.search(uri.getPath().replaceFirst(prefix, ""));
+                Router r = routers.get(prefix);
+                Route route = r.search(uri.getPath().replaceFirst(prefix, ""));
                 if(route != null) {
                     if(serve(route, exchange)) {
                         return;
@@ -115,7 +139,15 @@ public class Webserver {
             ResponseData response = errorHandlers.get(HttpErrorCode.NOT_FOUND).handle(new RequestData(exchange));
             write(response, exchange);
         } else {
-            String response = "{\"error\": \"404 Not found\"}";  // default 404 response
+            if(router != null) {
+                if(router.hasRoute("/")) {
+                    Route route = router.getRoute("/");
+                    ResponseData response = route.handle(new RequestData(exchange));
+                    write(response, exchange);
+                    return;
+                }
+            }
+            String response = "{\"error\": \"404 Not found\"}";  // default 404 response, if no route is found
             exchange.sendResponseHeaders(HttpErrorCode.NOT_FOUND, response.length());
             exchange.getResponseBody().write(response.getBytes());
             exchange.getResponseBody().close();

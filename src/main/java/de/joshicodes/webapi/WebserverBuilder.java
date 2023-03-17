@@ -1,18 +1,18 @@
 package de.joshicodes.webapi;
 
 import de.joshicodes.webapi.router.Router;
-import de.joshicodes.webapi.router.route.ErrorRoute;
 import de.joshicodes.webapi.router.route.Route;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
+import java.util.logging.Level;
 
 public class WebserverBuilder {
 
     private final HashMap<String, Router> routers;
-    private final HashMap<Integer, ErrorRoute> errorHandlers;
+    private final HashMap<Integer, Route> errorHandlers;
+
+    private Level logLevel = Level.INFO;
+
     private String host;
     private int port = -1;
 
@@ -31,6 +31,17 @@ public class WebserverBuilder {
         this.errorHandlers = new HashMap<>();
         this.host = "0.0.0.0";
         path = "/";
+    }
+
+    /**
+     * Set the log level specifying which message levels will be logged by this logger.
+     * Message levels lower than this value will be discarded. The level value {@link Level}.OFF can be used to turn off logging.
+     * @param logLevel the new value for the log level (can be null)
+     * @return this WebserverBuilder instance
+     */
+    public WebserverBuilder setLogLevel(Level logLevel) {
+        this.logLevel = logLevel;
+        return this;
     }
 
     /**
@@ -68,7 +79,7 @@ public class WebserverBuilder {
      * @param route the route
      * @return this WebserverBuilder instance
      */
-    public WebserverBuilder addErrorHandler(int code, ErrorRoute route) {
+    public WebserverBuilder addErrorHandler(int code, Route route) {
         this.errorHandlers.put(code, route);
         return this;
     }
@@ -128,11 +139,16 @@ public class WebserverBuilder {
         return routers;
     }
 
-    public HashMap<Integer, ErrorRoute> getErrorHandlers() {
+    public HashMap<Integer, Route> getErrorHandlers() {
         return errorHandlers;
     }
 
     public String getPath() {
         return path;
     }
+
+    public Level getLogLevel() {
+        return logLevel;
+    }
+
 }

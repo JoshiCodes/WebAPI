@@ -1,6 +1,8 @@
 # WebAPI
 
 ![Github Release](https://img.shields.io/github/v/release/JoshiCodes/WebAPI?include_prereleases)
+![JoshiCodes Repo](https://repo.joshizockt.de/api/badge/latest/releases/de/joshicodes/webapi?color=40c14a&name=WebAPI&prefix=v) 
+<a href="https://repo.joshizockt.de/javadoc/releases/de/joshicodes/webapi/latest"><img src="https://repo.joshizockt.de/api/badge/latest/releases/de/joshicodes/webapi?color=4D7A97&name=Javadoc&prefix=v"></a>
 
 A simple-to-use and small web api for your projects.
 _Mainly used for my own projects._
@@ -16,6 +18,16 @@ You can also download the newest version from the [releases](https://github.com/
     <artifactId>webapi</artifactId>
     <version>1.2</version>
 </dependency>
+```
+
+If you want to use my maven repository, you can add the following repo to your `pom.xml`:
+
+```xml
+<repository>
+    <id>joshicodes-de-releases</id>
+    <name>JoshiCodes.de Repository</name>
+    <url>https://repo.joshizockt.de/releases</url>
+</repository>
 ```
 
 ## Usage
@@ -96,6 +108,10 @@ You can create a new ResponseData object using the `ResponseData.Builder` class.
 You can also use `ResponseData#from(int code, String body)` to create a new Builder object.
 
 <br><br>
+
+## Error Handling
+You can add error handlers to your routes using `WebserverBuilder#addErrorHandler(int, Route)`. The int is the code that should be handled by the specified Route. You can find common Error Codes in the `HttpErrorCode` class.
+For this Route, Method and Authentication annotations will not be checked.
 
 ## Methods
 You can specify the method that a route should be available on using the `@HttpMethod` annotation.

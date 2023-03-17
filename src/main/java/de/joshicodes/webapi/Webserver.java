@@ -80,10 +80,9 @@ public class Webserver {
                 if(request == null) {
                     continue;
                 }
-                if(handleRoute(request, exchange)) {
+                if(serve(request, exchange)) {
                     return;
                 }
-                continue;
             }
         }
         // Check if there is a route for the path
@@ -94,11 +93,24 @@ public class Webserver {
                 path = "/" + path;
             if(defaultRouter.hasRoute(path)) {
                 Route request = defaultRouter.getRoute(path);
-                if(handleRoute(request, exchange)) {
+                if(serve(request, exchange)) {
                     return;
                 }
             }
         }
+
+        for (String prefix : routers.keySet()) {
+            if(uri.getPath().startsWith(prefix + (prefix.endsWith("/") ? "" : "/"))) {
+                Router router = routers.get(prefix);
+                Route route = router.search(uri.getPath().replaceFirst(prefix, ""));
+                if(route != null) {
+                    if(serve(route, exchange)) {
+                        return;
+                    }
+                }
+            }
+        }
+
         if(errorHandlers.containsKey(HttpErrorCode.NOT_FOUND)) {
             ResponseData response = errorHandlers.get(HttpErrorCode.NOT_FOUND).handle(new RequestData(exchange));
             write(response, exchange);
@@ -110,7 +122,7 @@ public class Webserver {
         }
     }
 
-    private boolean handleRoute(Route request, HttpExchange exchange) throws IOException {
+    private boolean serve(Route request, HttpExchange exchange) throws IOException {
         Method m = null;
         try {
             m = request.getClass().getMethod("handle", RequestData.class);
@@ -166,7 +178,7 @@ public class Webserver {
                         ResponseData response = errorHandlers.get(HttpErrorCode.UNAUTHORIZED).handle(new RequestData(exchange));
                         write(response, exchange);
                     } else {
-                        String response = "{\"error\": \"401 Unauthorized\"}";  // default 401 response
+                        String response = "401 Unauthorized";  // default 401 response
                         exchange.sendResponseHeaders(HttpErrorCode.UNAUTHORIZED, response.length());
                         exchange.getResponseBody().write(response.getBytes());
                         exchange.getResponseBody().close();
@@ -183,11 +195,12 @@ public class Webserver {
                 ResponseData response = errorHandlers.get(HttpErrorCode.METHOD_NOT_ALLOWED).handle(new RequestData(exchange));
                 write(response, exchange);
             } else {
-                String response = "{\"error\": \"405 Method not allowed\"}"; // default 405 response
+                String response = "405 Method not allowed"; // default 405 response
                 exchange.sendResponseHeaders(HttpErrorCode.METHOD_NOT_ALLOWED, response.length());
                 exchange.getResponseBody().write(response.getBytes());
                 exchange.getResponseBody().close();
             }
+
         }
         return false;
     }

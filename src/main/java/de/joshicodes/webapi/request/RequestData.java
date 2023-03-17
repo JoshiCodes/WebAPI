@@ -157,6 +157,18 @@ public record RequestData(HttpExchange exchange) {
     }
 
     /**
+     * Returns the uri parts of the request path<br>
+     * @return the uri parts
+     */
+    public String[] getUriParts() {
+        String path = getPath();
+        if (path.startsWith("/")) {
+            path = path.substring(1);
+        }
+        return path.split("/");
+    }
+
+    /**
      * Returns the value of the provided parameter key<br>
      * Works for both GET and POST requests
      * @param key the key of the parameter

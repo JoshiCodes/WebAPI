@@ -174,3 +174,6 @@ As this is not the best way to do authentication, you can also create your own A
             }
         }
 ```
+
+## Examples
+You can find examples in the `examples` folder.

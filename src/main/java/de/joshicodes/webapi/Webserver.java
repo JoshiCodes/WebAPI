@@ -125,8 +125,8 @@ public class Webserver {
         Router router = routers.get("/");
         for (String prefix : routers.keySet()) {
             if(uri.getPath().startsWith(prefix + (prefix.endsWith("/") ? "" : "/"))) {
-                Router r = routers.get(prefix);
-                Route route = r.search(uri.getPath().replaceFirst(prefix, ""));
+                router = routers.get(prefix);
+                Route route = router.search(uri.getPath().replaceFirst(prefix, ""));
                 if(route != null) {
                     if(serve(route, exchange)) {
                         return;

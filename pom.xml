@@ -6,7 +6,7 @@
 
     <groupId>de.joshicodes</groupId>
     <artifactId>webapi</artifactId>
-    <version>1.2</version>
+    <version>1.3</version>
 
     <build>
         <plugins>
@@ -60,19 +60,10 @@
 
     <distributionManagement>
         <repository>
-            <id>joshicodes-de</id>
-            <url>https://repo.joshicodes.de/releases</url>
-        </repository>
-    </distributionManagement>
-
-    <!--
-    <distributionManagement>
-        <repository>
             <id>github</id>
             <url>https://maven.pkg.github.com/JoshiCodes/WebAPI</url>
         </repository>
     </distributionManagement>
-    -->
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>

@@ -115,6 +115,7 @@ public abstract class ResponseData {
 
         /**
          * Sets a header of the response
+         * To set multiple headers, split the key and value with a <code>,</code><br>
          * @param key The key of the header
          * @param value The value of the header
          * @return This builder object

@@ -240,13 +240,15 @@ public class Webserver {
     private void write(ResponseData response, HttpExchange exchange) throws IOException {
         String body = response.getBody();
         if(body != null) {
-            exchange.sendResponseHeaders(response.getStatusCode(), body.length());
 
             if(response.getHeaders() != null)
-                response.getHeaders().forEach((key, value) -> exchange.getResponseHeaders().add(key, value));
+                response.getHeaders().forEach((key, value) -> exchange.getResponseHeaders().put(key, Arrays.asList(value.split(","))));
 
-            if(response.getContentType() != null)
+            if(response.getContentType() != null) {
                 exchange.getResponseHeaders().add("Content-Type", response.getContentType());
+            }
+
+            exchange.sendResponseHeaders(response.getStatusCode(), body.length());
 
             exchange.getResponseBody().write(body.getBytes());
             exchange.getResponseBody().close();

@@ -11,6 +11,7 @@ public abstract class ResponseData {
     abstract public int getStatusCode();
     abstract public String getContentType();
     abstract public String getHeader(String key);
+    abstract public HashMap<String, String> getHeaders();
 
 
     /**
@@ -81,21 +82,43 @@ public abstract class ResponseData {
             this.headers = new HashMap<>();
         }
 
+        /**
+         * Sets the body of the response
+         * @param body The body of the response
+         * @return This builder object
+         */
         public Builder setBody(String body) {
             this.body = body;
             return this;
         }
 
+        /**
+         * Sets the status code of the response
+         * @param statusCode The status code of the response
+         * @return This builder object
+         */
         public Builder setStatusCode(int statusCode) {
             this.statusCode = statusCode;
             return this;
         }
 
+        /**
+         * Sets the content type of the response<br>
+         * This overrides the "Content-Type" header if it is set using {@link Builder#setHeader(String, String)}
+         * @param contentType The content type of the response
+         * @return This builder object
+         */
         public Builder setContentType(String contentType) {
             this.contentType = contentType;
             return this;
         }
 
+        /**
+         * Sets a header of the response
+         * @param key The key of the header
+         * @param value The value of the header
+         * @return This builder object
+         */
         public Builder setHeader(String key, String value) {
             this.headers.put(key, value);
             return this;
@@ -122,6 +145,12 @@ public abstract class ResponseData {
                 public String getHeader(String key) {
                     return headers.get(key);
                 }
+
+                @Override
+                public HashMap<String, String> getHeaders() {
+                    return headers;
+                }
+
             };
         }
 

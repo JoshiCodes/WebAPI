@@ -241,6 +241,13 @@ public class Webserver {
         String body = response.getBody();
         if(body != null) {
             exchange.sendResponseHeaders(response.getStatusCode(), body.length());
+
+            if(response.getHeaders() != null)
+                response.getHeaders().forEach((key, value) -> exchange.getResponseHeaders().add(key, value));
+
+            if(response.getContentType() != null)
+                exchange.getResponseHeaders().add("Content-Type", response.getContentType());
+
             exchange.getResponseBody().write(body.getBytes());
             exchange.getResponseBody().close();
         } else {

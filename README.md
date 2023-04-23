@@ -176,4 +176,7 @@ For more information, see the [AuthenticationHandler](https://github.com/JoshiCo
 ```
 
 ## Examples
-You can find examples in the `examples` folder.
+You can find examples in the [examples folder](https://github.com/JoshiCodes/WebAPI/tree/master/examples).
+
+## License
+This project is licensed under the [MIT License](https://github.com/JoshiCodes/WebAPI/blob/master/LICENSE)

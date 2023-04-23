@@ -56,6 +56,14 @@ public class AuthenticationExample {
             super(null, "Bearer");
         }
 
+        // If you want to have the value provided in the Authentication annotation, you can use this constructor
+        // This is not recommended, as it is better to check the provided value against a database or something similar
+        // You can retrieve the value using the getValue() method
+        // The type is still required
+        CustomAuthenticationHandler(String value) {
+            super(value, "Bearer");
+        }
+
         @Override
         public boolean handle(String type, String provided) {
 
@@ -67,9 +75,12 @@ public class AuthenticationExample {
 
             // Check if the provided token is valid
             // You should use a database or something similar to store your tokens
-            if (provided.equals("bearerTokenHere")) {
+            final String tokenFromDatabase = "bearerTokenHere";  // Replace this with your token from the database or something similar
+            if (provided.equals(tokenFromDatabase)) {
+                // Return true if the token is valid
                 return true;
             }
+            // Return false if the token is invalid
             return false;
 
         }

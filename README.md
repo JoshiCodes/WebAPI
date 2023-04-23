@@ -156,6 +156,7 @@ The `BearerAuthenticationHandler` requires a Bearer token as value.
         }
 ```
 As this is not the best way to do authentication, you can also create your own AuthenticationHandler. To do this, you need to create a new class that extends the `AuthenticationHandler` class.
+For more information, see the [AuthenticationHandler](https://github.com/JoshiCodes/WebAPI/blob/master/src/main/java/de/joshicodes/webapi/auth/handler/AuthenticationHandler.java) class or have a look at one of the [existing AuthenticationHandlers](https://github.com/JoshiCodes/WebAPI/tree/master/src/main/java/de/joshicodes/webapi/auth/handler).
 
 ```java
         public class MyAuthenticationHandler extends AuthenticationHandler {

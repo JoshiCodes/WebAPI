@@ -8,6 +8,8 @@ import de.joshicodes.webapi.exceptions.MissingPostDataException;
 import de.joshicodes.webapi.exceptions.UnknownContentTypeException;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 
@@ -76,7 +78,7 @@ public record RequestData(HttpExchange exchange) {
                 if (param.contains("=")) {
                     String[] split = param.split("=");
                     if (split.length == 2)
-                        parameters.put(split[0], split[1]);
+                        parameters.put(split[0], URLEncoder.encode(split[1], StandardCharsets.UTF_8));
                     else if (split.length == 1)
                         parameters.put(split[0], null);
                 } else {
@@ -114,7 +116,7 @@ public record RequestData(HttpExchange exchange) {
             if (param.contains("=")) {
                 String[] split = param.split("=");
                 if (split.length == 2)
-                    parameters.put(split[0], split[1]);
+                    parameters.put(split[0], URLEncoder.encode(split[1], StandardCharsets.UTF_8));
                 else if (split.length == 1)
                     parameters.put(split[0], null);
             } else {
@@ -149,7 +151,11 @@ public record RequestData(HttpExchange exchange) {
     public String getParameter(String key) {
         if(getMethod().equals("POST")) {
             try {
-                return getPostParameters().get(key);
+                String param = getPostParameters().get(key);
+                if(param != null) {
+                    return URLEncoder.encode(param, StandardCharsets.UTF_8);
+                }
+                return null;
             } catch (MissingPostDataException | UnknownContentTypeException e) {
                 throw new RuntimeException(e);
             }
@@ -177,7 +183,7 @@ public record RequestData(HttpExchange exchange) {
      * @return the value of the parameter, always a string
      */
     public String getParameter(String key, String def) {
-        return getParameters().getOrDefault(key, def);
+        return URLEncoder.encode(getParameters().getOrDefault(key, def), StandardCharsets.UTF_8);
     }
 
     public String getPath() {

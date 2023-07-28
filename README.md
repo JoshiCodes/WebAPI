@@ -1,7 +1,7 @@
 # WebAPI
 
 ![Github Release](https://img.shields.io/github/v/release/JoshiCodes/WebAPI?include_prereleases)
-<a href="https://repo.joshizockt.de/javadoc/releases/de/joshicodes/webapi/1.2/raw/index.html"><img src="https://repo.joshizockt.de/api/badge/latest/releases/de/joshicodes/webapi?color=4D7A97&name=Javadoc&prefix=v"></a>
+<a href="https://repo.joshicodes.de/javadoc/releases/de/joshicodes/webapi/1.2/raw/index.html"><img src="https://repo.joshicodes.de/api/badge/latest/releases/de/joshicodes/webapi?color=4D7A97&name=Javadoc&prefix=v"></a>
 
 A simple-to-use and small web api for your projects.
 _Mainly used for my own projects._

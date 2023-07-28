@@ -162,7 +162,7 @@ For more information, see the [AuthenticationHandler](https://github.com/JoshiCo
         public class MyAuthenticationHandler extends AuthenticationHandler {
     
             public MyAuthenticationHandler() {
-                super("Bearer"); // This is the type of the authentication header. You can allow multiple types ("Bearer", "Basic") but your handler should be able to handle all of them.
+                super(null, "Bearer"); // This is the type of the authentication header. You can allow multiple types ("Bearer", "Basic") but your handler should be able to handle all of them.
             }
     
             @Override

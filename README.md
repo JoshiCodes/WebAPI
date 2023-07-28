@@ -15,7 +15,7 @@ You can also download the newest version from the [releases](https://github.com/
 <dependency>
     <groupId>de.joshicodes</groupId>
     <artifactId>webapi</artifactId>
-    <version>1.3.1b</version>
+    <version>1.3.2</version>
 </dependency>
 ```
 
@@ -105,6 +105,8 @@ You can create a new ResponseData object using the `ResponseData.Builder` class.
         .build();
 ```
 You can also use `ResponseData#from(int code, String body)` to create a new Builder object.
+
+To redirect the client, return a `ResponseModificationData` Object, which you can create by using `ResponseData#redirect(String)`. This will redirect the client to the specified path.
 
 <br><br>
 

@@ -13,6 +13,19 @@ public abstract class ResponseData {
     abstract public String getHeader(String key);
     abstract public HashMap<String, String> getHeaders();
 
+    /**
+     * Creates a new {@link ResponseModificationData} object that redirects to the given URL
+     * @param url The URL to redirect to. Has to be a valid URL
+     * @return The ResponseModificationData object
+     */
+    public static ResponseModificationData redirect(String url) {
+        return new ResponseModificationData() {
+            @Override
+            public String getRedirectLocation() {
+                return url;
+            }
+        };
+    }
 
     /**
      * Creates a new ResponseData object with the given body<br>

@@ -253,6 +253,23 @@ public class Webserver {
             exchange.getResponseBody().write(body.getBytes());
             exchange.getResponseBody().close();
         } else {
+
+            if(response instanceof ResponseModificationData modificationData) {
+
+                if(modificationData.getRedirectLocation() != null) {
+
+                    exchange.getResponseHeaders().add("Location", modificationData.getRedirectLocation());
+                    exchange.sendResponseHeaders(302, 0);
+                    exchange.sendResponseHeaders(302, 0);
+                    exchange.getResponseBody().close();
+
+                } else {
+                    // Future implementations here
+                }
+
+                return;
+            }
+
             exchange.sendResponseHeaders(response.getStatusCode(), 0);
             exchange.getResponseBody().close();
         }

@@ -49,6 +49,9 @@ public class Example {
             }
         });
 
+        // Redirect to another url
+        builder.addRoute("/redirect", request -> ResponseData.redirect("https://google.com"));
+
         Webserver server = builder.build();  // build the server
         server.start();  // start the server
 

@@ -194,12 +194,13 @@ public record RequestData(HttpExchange exchange) {
         if(
                 exchange == null ||
                 exchange.getRequestBody() == null ||
-                exchange.getRequestBody().readAllBytes().length < 1 ||
                 exchange.getRequestHeaders().get("Content-Length").stream().anyMatch(h->h.equalsIgnoreCase("0"))
         ) {
             return null;
         }
-        return new String(exchange.getRequestBody().readAllBytes());
+        byte[] bytes = exchange.getRequestBody().readAllBytes();
+        if(bytes.length == 0) return null;
+        return new String(bytes);
     }
 
     public List<String> getHeader(String key) {

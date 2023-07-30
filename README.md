@@ -25,7 +25,7 @@ If you want to use my maven repository, you can add the following repo to your `
 <repository>
     <id>joshicodes-de-releases</id>
     <name>JoshiCodes.de Repository</name>
-    <url>https://repo.joshizockt.de/releases</url>
+    <url>https://repo.joshicodes.de/releases</url>
 </repository>
 ```
 

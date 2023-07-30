@@ -1,5 +1,7 @@
 package de.joshicodes.webapi.auth.handler;
 
+import com.sun.net.httpserver.HttpExchange;
+
 public class BearerAuthenticationHandler extends AuthenticationHandler {
 
     public BearerAuthenticationHandler(String value) {
@@ -7,7 +9,7 @@ public class BearerAuthenticationHandler extends AuthenticationHandler {
     }
 
     @Override
-    public boolean handle(String type, String provided) {
+    public boolean handle(String type, String provided, HttpExchange exchange) {
         if (!type.equals("Bearer")) {
             return false;
         }

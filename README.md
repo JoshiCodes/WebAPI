@@ -168,7 +168,7 @@ For more information, see the [AuthenticationHandler](https://github.com/JoshiCo
             }
     
             @Override
-            public boolean handle(String type, String value) {
+            public boolean handle(String type, String value, HttpExchange exchange) {
                 // type is the type of the authentication header
                 // value is the read value from the request
                 // For the example above, value would be "testToken" and type would be "Bearer"

@@ -200,7 +200,7 @@ public class Webserver {
                         }
                         if (handler != null) {
                             if (Arrays.asList(handler.getAllowedTypes()).contains(type))
-                                auth = handler.handle(type, header);
+                                auth = handler.handle(type, header, exchange);
                         }
                     }
                 }

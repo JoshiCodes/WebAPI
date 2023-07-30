@@ -1,3 +1,4 @@
+import com.sun.net.httpserver.HttpExchange;
 import de.joshicodes.webapi.WebserverBuilder;
 import de.joshicodes.webapi.auth.Authentication;
 import de.joshicodes.webapi.auth.handler.AuthenticationHandler;
@@ -65,7 +66,7 @@ public class AuthenticationExample {
         }
 
         @Override
-        public boolean handle(String type, String provided) {
+        public boolean handle(String type, String provided, HttpExchange exchange) {
 
             // Double check if the type is correct
             // This is not necessary, because the AuthenticationHandler only calls this method, if the type is correct

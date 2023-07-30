@@ -58,7 +58,7 @@ public record RequestData(HttpExchange exchange) {
         // read content type from exchange
         String contentType = getContentType();
         if (contentType == null) {
-            throw new NullPointerException("The content type is null, cannot handle request");
+            throw new UnknownContentTypeException(null);
         }
         // handle content type
         HashMap<String, String> parameters = new HashMap<>();
@@ -191,7 +191,14 @@ public record RequestData(HttpExchange exchange) {
     }
 
     public String getBody() throws IOException {
-        if(exchange == null || exchange.getRequestBody() == null) return null;
+        if(
+                exchange == null ||
+                exchange.getRequestBody() == null ||
+                exchange.getRequestBody().readAllBytes().length < 1 ||
+                exchange.getRequestHeaders().get("Content-Length").stream().anyMatch(h->h.equalsIgnoreCase("0"))
+        ) {
+            return null;
+        }
         return new String(exchange.getRequestBody().readAllBytes());
     }
 

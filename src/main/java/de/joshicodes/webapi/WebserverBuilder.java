@@ -109,8 +109,9 @@ public class WebserverBuilder {
      * @param path the path
      * @return this WebserverBuilder instance
      */
-    public void setPath(String path) {
+    public WebserverBuilder setPath(String path) {
         this.path = path;
+        return this;
     }
 
     /**

@@ -26,7 +26,7 @@ public @interface Authentication {
      * The value to use for authentication<br>
      * If the authentication handler does not require a value, this can be left empty or null<br>
      * 
-     * @see de.joshicodes.webapi.auth.handler.AuthenticationHandler#handle(String, String)
+     * @see de.joshicodes.webapi.auth.handler.AuthenticationHandler#handle(String, String, com.sun.net.httpserver.HttpExchange)
      * 
      * @return The value to use for authentication
      */

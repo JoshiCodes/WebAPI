@@ -191,6 +191,7 @@ public record RequestData(HttpExchange exchange) {
     }
 
     public String getBody() throws IOException {
+        if(exchange == null || exchange.getRequestBody() == null) return null;
         return new String(exchange.getRequestBody().readAllBytes());
     }
 

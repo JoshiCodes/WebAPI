@@ -4,6 +4,8 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import de.joshicodes.webapi.auth.Authentication;
 import de.joshicodes.webapi.auth.handler.AuthenticationHandler;
+import de.joshicodes.webapi.event.EventManager;
+import de.joshicodes.webapi.event.events.RouteRequestEvent;
 import de.joshicodes.webapi.request.*;
 import de.joshicodes.webapi.router.Router;
 import de.joshicodes.webapi.router.route.Route;
@@ -27,6 +29,8 @@ public class Webserver {
     private final int port;
 
     private HttpServer server;
+
+    private final EventManager eventManager;
 
     private final HashMap<String, Router> routers;
     private final HashMap<Integer, Route> errorHandlers;
@@ -54,6 +58,8 @@ public class Webserver {
 
         this.host = builder.getHost();
         this.port = builder.getPort();
+
+        this.eventManager = new EventManager(this, server);
         this.routers = builder.getRouters();
         this.errorHandlers = builder.getErrorHandlers();
         this.path = builder.getPath();
@@ -219,7 +225,26 @@ public class Webserver {
                 }
 
             }
-            ResponseData response = request.handle(new RequestData(exchange));
+            final RequestData requestData = new RequestData(exchange);
+            RouteRequestEvent event = new RouteRequestEvent(this, request, requestData);
+            eventManager.callEvent(event);
+            if(event.isCancelled()) {
+                if(event.hasCancelResponse())
+                    write(event.getCancelResponse(), exchange);
+                else {
+                    if (errorHandlers.containsKey(HttpErrorCode.UNAUTHORIZED)) {
+                        ResponseData response = errorHandlers.get(HttpErrorCode.UNAUTHORIZED).handle(new RequestData(exchange));
+                        write(response, exchange);
+                    } else {
+                        String response = "401 Unauthorized";  // default 401 response
+                        exchange.sendResponseHeaders(HttpErrorCode.UNAUTHORIZED, response.length());
+                        exchange.getResponseBody().write(response.getBytes());
+                        exchange.getResponseBody().close();
+                    }
+                }
+                return true;
+            }
+            ResponseData response = request.handle(requestData);
             write(response, exchange);
             return true;
         } else {
@@ -281,6 +306,30 @@ public class Webserver {
 
     public int getPort() {
         return port;
+    }
+
+    public EventManager getEventManager() {
+        return eventManager;
+    }
+
+    public Logger getLogger() {
+        return logger;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public HashMap<String, Router> getRouters() {
+        return routers;
+    }
+
+    public HashMap<Integer, Route> getErrorHandlers() {
+        return errorHandlers;
+    }
+
+    public HttpServer getHttpServer() {
+        return server;
     }
 
 }

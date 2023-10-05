@@ -7,6 +7,9 @@ import de.joshicodes.webapi.router.route.Route;
 
 public class RouteRequestEvent extends Event {
 
+    private final Route route;
+    private final RequestData requestData;
+
     private ResponseData cancelResponse;
 
     /**
@@ -19,6 +22,8 @@ public class RouteRequestEvent extends Event {
      */
     public RouteRequestEvent(Webserver server, Route route, RequestData requestData) {
         super(server, true);
+        this.route = route;
+        this.requestData = requestData;
     }
 
     public void setCancelled(boolean cancelled, ResponseData cancelResponse) {
@@ -28,6 +33,14 @@ public class RouteRequestEvent extends Event {
 
     public void setCancelResponse(ResponseData cancelResponse) {
         this.cancelResponse = cancelResponse;
+    }
+
+    public Route getRoute() {
+        return route;
+    }
+
+    public RequestData getRequestData() {
+        return requestData;
     }
 
     public ResponseData getCancelResponse() {
